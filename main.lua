@@ -7,27 +7,23 @@ local DocCache = require("document/doccache")
 local _ = require("gettext")
 local T = require("ffi/util").template
 
-local crop_detect = require("crop_enhancer_detect")
-local SETTINGS_DEFAULTS = crop_detect.SETTINGS_DEFAULTS
-local loadSetting = crop_detect.loadSetting
-local now_ms = crop_detect.now_ms
-local dbg = crop_detect.dbg
+local enhancedCropBmp = require("crop_enhancer_detect")
+local settings = require("crop_enhancer_settings")
+local loadSetting, saveSetting, SETTINGS_DEFAULTS = settings.loadSetting, settings.saveSetting,
+    settings.SETTINGS_DEFAULTS
+
+local logger = require("crop_enhancer_logger")
+local now_ms, dbg = logger.now_ms, logger.dbg
 
 --- @class CropEnhancer
 
 local CropEnhancer = WidgetContainer:extend {
   name = "crop_enhancer",
-  -- is_doc_only = true,
+  is_doc_only = true,
 }
 
 --- @type boolean
 local crop_enhancer_enabled = true
-
-local function saveSetting(key, value)
-  local settings = G_reader_settings:readSetting("crop_enhancer", {})
-  settings[key] = value
-  G_reader_settings:saveSetting("crop_enhancer", settings)
-end
 
 local origGetAutoBBox = nil
 local patched = false
@@ -84,7 +80,7 @@ function CropEnhancer:init()
         page:getPagePix(kc, doc.render_mode, doc.configurable.background_cleanup)
         local t_pix = now_ms()
 
-        local x0, y0, x1, y1 = crop_detect.enhancedCropBmp(kc)
+        local x0, y0, x1, y1 = enhancedCropBmp(kc)
         local t_crop = now_ms()
 
         local w, h = native_size.w, native_size.h
@@ -314,8 +310,34 @@ function CropEnhancer:addToMainMenu(menu_items)
     text = _("Enhanced Crop Settings"),
     sub_item_table = {
       {
+        text = _("Enhanced Crop"),
+        checked_func = function()
+          return crop_enhancer_enabled
+        end,
+        callback = function()
+          crop_enhancer_enabled = not crop_enhancer_enabled
+          if self.ui.document and self.ui.document.configurable then
+            self.ui.document.configurable.crop_enhancer = crop_enhancer_enabled and 1 or 0
+          end
+          dbg("menu toggle -> %s", tostring(crop_enhancer_enabled))
+        end,
+      },
+      {
+        text = _("Debug Log"),
+        checked_func = function()
+          return loadSetting("debug_log") == true
+        end,
+        callback = function()
+          saveSetting("debug_log", not loadSetting("debug_log"))
+          dbg("debug_log -> %s", tostring(loadSetting("debug_log")))
+        end,
+      },
+      {
         text_func = function()
           return T(_("Threshold: %1"), loadSetting("threshold"))
+        end,
+        enabled_func = function()
+          return crop_enhancer_enabled
         end,
         callback = function(touchmenu_instance)
           UIManager:show(SpinWidget:new {
@@ -338,6 +360,9 @@ function CropEnhancer:addToMainMenu(menu_items)
         text_func = function()
           return T(_("Border Width: %1 px"), loadSetting("border_max_width"))
         end,
+        enabled_func = function()
+          return crop_enhancer_enabled
+        end,
         callback = function(touchmenu_instance)
           UIManager:show(SpinWidget:new {
             title_text = _("Border Max Width"),
@@ -359,6 +384,9 @@ function CropEnhancer:addToMainMenu(menu_items)
         text_func = function()
           return T(_("Min Area: %1 px²"), loadSetting("min_content_area"))
         end,
+        enabled_func = function()
+          return crop_enhancer_enabled
+        end,
         callback = function(touchmenu_instance)
           UIManager:show(SpinWidget:new {
             title_text = _("Min Content Area"),
@@ -378,7 +406,10 @@ function CropEnhancer:addToMainMenu(menu_items)
       },
       {
         text_func = function()
-          return T(_("Margin: %1"), math.floor(loadSetting("margin") * 100)).. "%"
+          return T(_("Margin: %1%"), math.floor(loadSetting("margin") * 100))
+        end,
+        enabled_func = function()
+          return crop_enhancer_enabled
         end,
         callback = function(touchmenu_instance)
           UIManager:show(SpinWidget:new {

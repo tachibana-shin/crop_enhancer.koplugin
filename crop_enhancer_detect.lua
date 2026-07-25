@@ -1,34 +1,9 @@
 local ffi = require("ffi")
+local logger = require("crop_enhancer_logger")
+local settings = require("crop_enhancer_settings")
 
---- @return number  Milliseconds since Lua epoch
-local function now_ms()
-  return os.clock() * 1000
-end
-
---- @param fmt string  Format string
---- @param ... any     Format arguments
-local function dbg(fmt, ...)
-  print("CropEnhancer: " .. fmt:format(...))
-end
-
---- @class CropEnhancerSettings
---- @field threshold        number  Grayscale threshold (0-255) for content detection
---- @field border_max_width number  Components within this many px of edge are border
---- @field min_content_area number  Minimum bounding-box area to count as content
---- @field margin           number  Extra margin around detected content (fraction of DPI)
-local SETTINGS_DEFAULTS = {
-  threshold = 180,
-  border_max_width = 5,
-  min_content_area = 50,
-  margin = 0.05,
-}
-
---- @param key string  Setting key
---- @return number
-local function loadSetting(key)
-  local settings = G_reader_settings:readSetting("crop_enhancer", {})
-  return settings[key] ~= nil and settings[key] or SETTINGS_DEFAULTS[key]
-end
+local now_ms, dbg = logger.now_ms, logger.dbg
+local loadSetting = settings.loadSetting
 
 --- Leptonica library handle (loaded once, LuaJIT caches table lookups)
 --- @type table
@@ -206,10 +181,4 @@ local function enhancedCropBmp(kc)
   return x0, y0, x1, y1
 end
 
-return {
-  SETTINGS_DEFAULTS = SETTINGS_DEFAULTS,
-  loadSetting = loadSetting,
-  enhancedCropBmp = enhancedCropBmp,
-  now_ms = now_ms,
-  dbg = dbg,
-}
+return enhancedCropBmp
