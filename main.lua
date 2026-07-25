@@ -4,8 +4,10 @@ local UIManager = require("ui/uimanager")
 local Document = require("document/document")
 local CacheItem = require("cacheitem")
 local DocCache = require("document/doccache")
-local _ = require("gettext")
 local T = require("ffi/util").template
+
+local i18n = require("crop_enhancer_i18n")
+local _ = i18n.translate
 
 local enhancedCropBmp = require("crop_enhancer_detect")
 local settings = require("crop_enhancer_settings")
@@ -29,7 +31,7 @@ local origGetAutoBBox = nil
 local patched = false
 
 function CropEnhancer:init()
-  dbg("init()")
+  dbg("init() lang=%s", i18n.getLang())
   self.ui.menu:registerToMainMenu(self)
   self:patchKoptOptions()
 
