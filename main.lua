@@ -431,6 +431,21 @@ function CropEnhancer:addToMainMenu(menu_items)
         end,
         keep_menu_open = true,
       },
+      {
+        text = _("About"),
+        callback = function()
+          local InfoMessage = require("ui/widget/infomessage")
+          local info = require("crop_enhancer_info")
+          UIManager:show(InfoMessage:new {
+            title = _("Enhanced Crop"),
+            text = T(_("%1\n\nVersion: %2\nAuthor: %3\nGitHub: %4"),
+              _("Enhanced Crop — Connected component analysis for better page trimming."),
+              info.version,
+              info.author,
+              info.github),
+          })
+        end,
+      },
     },
   }
 end

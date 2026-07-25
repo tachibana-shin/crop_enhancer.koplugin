@@ -24,4 +24,9 @@ return {
   ["Border Width: %1 px"] = "Border Width: %1 px",
   ["Min Area: %1 px²"] = "Min Area: %1 px²",
   ["Margin: %1 %%"] = "Margin: %1 %%",
+  ["About"] = "About",
+  ["Enhanced Crop — Connected component analysis for better page trimming."] = "Enhanced Crop — Connected component analysis for better page trimming.",
+  ["Version"] = "Version",
+  ["Author"] = "Author",
+  ["GitHub"] = "GitHub",
 }

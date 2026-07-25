@@ -24,4 +24,9 @@ return {
   ["Border Width: %1 px"] = "境界線幅: %1 px",
   ["Min Area: %1 px²"] = "最小面積: %1 px²",
   ["Margin: %1 %%"] = "余白: %1 %%",
+  ["About"] = "概要",
+  ["Enhanced Crop — Connected component analysis for better page trimming."] = "拡張クロップ — 連結成分解析によるより良いページ切り抜き。",
+  ["Version"] = "バージョン",
+  ["Author"] = "著者",
+  ["GitHub"] = "GitHub",
 }

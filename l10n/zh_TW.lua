@@ -24,4 +24,9 @@ return {
   ["Border Width: %1 px"] = "邊框寬度: %1 px",
   ["Min Area: %1 px²"] = "最小面積: %1 px²",
   ["Margin: %1 %%"] = "邊距: %1 %%",
+  ["About"] = "關於",
+  ["Enhanced Crop — Connected component analysis for better page trimming."] = "增強裁剪 — 用連通域分析實現更好的頁面裁剪。",
+  ["Version"] = "版本",
+  ["Author"] = "作者",
+  ["GitHub"] = "GitHub",
 }

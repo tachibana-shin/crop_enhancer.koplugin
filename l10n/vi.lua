@@ -24,4 +24,9 @@ return {
   ["Border Width: %1 px"] = "Độ rộng viền: %1 px",
   ["Min Area: %1 px²"] = "Diện tích tối thiểu: %1 px²",
   ["Margin: %1 %%"] = "Lề: %1 %%",
+  ["About"] = "Giới thiệu",
+  ["Enhanced Crop — Connected component analysis for better page trimming."] = "Cắt nâng cao — Phân tích thành phần liên thông để cắt trang tốt hơn.",
+  ["Version"] = "Phiên bản",
+  ["Author"] = "Tác giả",
+  ["GitHub"] = "GitHub",
 }
