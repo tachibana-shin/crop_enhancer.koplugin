@@ -9,7 +9,8 @@ local T = require("ffi/util").template
 local i18n = require("crop_enhancer_i18n")
 local _ = i18n.translate
 
-local enhancedCropBmp = require("crop_enhancer_detect")
+local detect = require("crop_enhancer_detect")
+local enhancedCropBmp, getEnhancedPanel = detect.enhancedCropBmp, detect.getEnhancedPanel
 local settings = require("crop_enhancer_settings")
 local loadSetting, saveSetting, SETTINGS_DEFAULTS = settings.loadSetting, settings.saveSetting,
     settings.SETTINGS_DEFAULTS
@@ -29,6 +30,7 @@ local crop_enhancer_enabled = true
 
 local origGetAutoBBox = nil
 local patched = false
+local patched_panel = false
 
 function CropEnhancer:init()
   dbg("init() lang=%s", i18n.getLang())
@@ -115,6 +117,37 @@ function CropEnhancer:init()
       dbg("  KoptInterface:getAutoBBox overridden")
     else
       dbg("  WARNING: KoptInterface not found (no koptinterface for this document?)")
+    end
+  end
+
+  if not patched_panel then
+    local KoptInterface = self.ui.document.koptinterface
+    if KoptInterface and KoptInterface.getPanelFromPage then
+      local origGetPanelFromPage = KoptInterface.getPanelFromPage
+      function KoptInterface:getPanelFromPage(doc, pageno, pos)
+        if not crop_enhancer_enabled then
+          return origGetPanelFromPage(self, doc, pageno, pos)
+        end
+
+        local page_size = Document.getNativePageDimensions(doc, pageno)
+        local bbox = { x0 = 0, y0 = 0, x1 = page_size.w, y1 = page_size.h }
+        local kc = self:createContext(doc, pageno, bbox)
+        kc:setZoom(1.0)
+        local page = doc._document:openPage(pageno)
+        page:getPagePix(kc, doc.render_mode, doc.configurable.background_cleanup)
+
+        local panel = getEnhancedPanel(kc, pos)
+        page:close()
+        kc:free()
+
+        if panel then
+          return panel
+        end
+
+        return origGetPanelFromPage(self, doc, pageno, pos)
+      end
+      patched_panel = true
+      dbg("  KoptInterface:getPanelFromPage overridden")
     end
   end
 

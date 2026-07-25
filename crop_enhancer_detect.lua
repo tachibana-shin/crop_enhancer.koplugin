@@ -181,4 +181,84 @@ local function enhancedCropBmp(kc)
   return x0, y0, x1, y1
 end
 
-return enhancedCropBmp
+--- Find the connected component containing a given position.
+--- Same pipeline as enhancedCropBmp but returns a single panel, not merged bbox.
+--- @param kc any
+--- @param pos table  {x, y} in page coordinates
+--- @return table|nil  {x, y, w, h} or nil
+local function getEnhancedPanel(kc, pos)
+  ensureLeptonica()
+  local KOPTContext = require("ffi/koptcontext")
+  local k2pdfopt    = KOPTContext.k2pdfopt
+
+  local threshold        = loadSetting("threshold")
+  local border_max_width = loadSetting("border_max_width")
+  local min_content_area = loadSetting("min_content_area")
+
+  local img_w = kc.src.width
+  local img_h = kc.src.height
+
+  local pixs = _gc_ptr(k2pdfopt.bitmap2pix(kc.src, 0, 0, img_w, img_h), pixDestroy)
+  if pixs == nil then return nil end
+
+  local depth = lev.pixGetDepth(pixs)
+  local pixg
+  if depth == 32 then
+    pixg = _gc_ptr(lev.pixConvertRGBToGrayFast(pixs), pixDestroy)
+  elseif depth == 8 then
+    pixg = pixs
+  else
+    pixg = _gc_ptr(lev.pixClone(pixs), pixDestroy)
+  end
+  if pixg == nil then return nil end
+
+  local pix_binary = _gc_ptr(lev.pixThresholdToBinary(pixg, threshold), pixDestroy)
+  if pix_binary == nil then return nil end
+
+  lev.pixInvert(pix_binary, pix_binary)
+
+  local bb = _gc_ptr(lev.pixConnCompBB(pix_binary, 8), boxaDestroy)
+  if bb == nil then return nil end
+
+  local t0 = now_ms()
+
+  local best_dist = math.huge
+  local best_box = nil
+
+  for box in boxaIterBoxes(bb) do
+    local bx, by, bw, bh = boxGetGeometry(box)
+
+    local touches_border = (bx <= border_max_width)
+        or (by <= border_max_width)
+        or (bx + bw >= img_w - border_max_width)
+        or (by + bh >= img_h - border_max_width)
+
+    if not touches_border and bw * bh >= min_content_area then
+      local cx = bx + bw / 2
+      local cy = by + bh / 2
+      local dx = pos.x - cx
+      local dy = pos.y - cy
+      local dist = dx * dx + dy * dy
+
+      if pos.x >= bx and pos.x <= bx + bw and pos.y >= by and pos.y <= by + bh then
+        if dist < best_dist then
+          best_dist = dist
+          best_box = { x = bx, y = by, w = bw, h = bh }
+        end
+      end
+    end
+  end
+
+  local t1 = now_ms()
+
+  if best_box then
+    dbg("  getEnhancedPanel pos=(%.0f,%.0f) -> {%d,%d,%d,%d} %.1fms",
+      pos.x, pos.y, best_box.x, best_box.y, best_box.w, best_box.h, t1 - t0)
+  else
+    dbg("  getEnhancedPanel pos=(%.0f,%.0f) -> nil %.1fms", pos.x, pos.y, t1 - t0)
+  end
+
+  return best_box
+end
+
+return { enhancedCropBmp = enhancedCropBmp, getEnhancedPanel = getEnhancedPanel }
