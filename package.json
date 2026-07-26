@@ -1,0 +1,37 @@
+{
+  "name": "crop_enhancer.koplugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enhanced page crop and panel zoom for KOReader using leptonica connected-component analysis",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tachibana-shin/crop_enhancer.koplugin.git"
+  },
+  "devDependencies": {
+    "semantic-release": "^24.0.0",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/github": "^11.0.0"
+  },
+  "release": {
+    "branches": ["main"],
+    "plugins": [
+      ["@semantic-release/commit-analyzer", {
+        "preset": "angular",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" }
+        ]
+      }],
+      "@semantic-release/release-notes-generator",
+      ["@semantic-release/exec", {
+        "prepareCmd": "sed -i \"s/version = \\\".*\\\"/version = \\\"${nextRelease.version}\\\"/\" crop_enhancer_info.lua"
+      }],
+      ["@semantic-release/github", {
+        "releasedLabels": false,
+        "successComment": false
+      }]
+    ]
+  }
+}
