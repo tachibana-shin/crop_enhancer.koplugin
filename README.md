@@ -10,6 +10,12 @@ Replaces KOReader's built-in page auto-crop algorithm with leptonica connected-c
 - **Dispatcher actions** — all settings are available as Dispatcher actions for key/gesture binding.
 - **i18n** — English, Vietnamese, Japanese, Simplified Chinese, Traditional Chinese.
 
+## Screenshoot
+| Before (Auto crop default) | After (With alogrimth) | After (With alogrimth + padding) |
+| --- | -- | --- |
+| <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/1435ab1a-b0c4-42d5-b70c-64b47d37280e" /> | <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/e3858865-b6f2-44cc-b3eb-ca1627c6db54" /> | <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/8b41ef47-6fd5-4776-93c0-3156b8b11aec" /> | 
+| <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/8c48ab01-f0e6-40dc-9254-de00c8538c27" /> | <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/762adbec-0430-4fdb-bf00-aab68838731b" /> | <img width="435" height="740" alt="image" src="https://github.com/user-attachments/assets/cdb16c91-ea0e-478e-80fa-a85eb89c2d8b" /> |
+
 ## Requirements
 
 - KOReader (tested on Kindle PW3)
