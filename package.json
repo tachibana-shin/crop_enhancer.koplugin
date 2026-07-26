@@ -26,11 +26,12 @@
       }],
       "@semantic-release/release-notes-generator",
       ["@semantic-release/exec", {
-        "prepareCmd": "sed -i \"s/version = \\\".*\\\"/version = \\\"${nextRelease.version}\\\"/\" crop_enhancer_info.lua"
+        "prepareCmd": "sed -i \"s/version = \\\".*\\\"/version = \\\"${nextRelease.version}\\\"/\" crop_enhancer_info.lua && make release"
       }],
       ["@semantic-release/github", {
         "releasedLabels": false,
-        "successComment": false
+        "successComment": false,
+        "assets": [{ "path": "crop_enhancer-*.zip", "label": "Release archive" }]
       }]
     ]
   }
