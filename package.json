@@ -31,7 +31,7 @@
       ["@semantic-release/github", {
         "releasedLabels": false,
         "successComment": false,
-        "assets": [{ "path": "crop_enhancer-*.zip", "label": "Release archive" }]
+        "assets": [{ "path": "-*.zip", "label": "Release archive" }]
       }]
     ]
   }
